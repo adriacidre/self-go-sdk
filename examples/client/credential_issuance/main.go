@@ -30,7 +30,6 @@ import (
 
 	"github.com/joinself/self-go-sdk/client"
 	"github.com/joinself/self-go-sdk/credential"
-	"github.com/joinself/self-go-sdk/examples/utils"
 )
 
 func main() {
@@ -66,24 +65,14 @@ func main() {
 func createClients() (*client.Client, *client.Client) {
 	fmt.Println("🔧 Setting up clients...")
 
-	// Create issuer client
-	issuer, err := client.New(client.Config{
-		StorageKey:  utils.GenerateStorageKey("simple_issuer"),
-		StoragePath: "./simple_issuer_storage",
-		Environment: client.Sandbox,
-		LogLevel:    client.LogInfo,
-	})
+	// Create issuer client using simplified creation
+	issuer, err := client.NewSimplified("./simple_issuer_storage")
 	if err != nil {
 		log.Fatal("Failed to create issuer:", err)
 	}
 
-	// Create holder client
-	holder, err := client.New(client.Config{
-		StorageKey:  utils.GenerateStorageKey("simple_holder"),
-		StoragePath: "./simple_holder_storage",
-		Environment: client.Sandbox,
-		LogLevel:    client.LogInfo,
-	})
+	// Create holder client using simplified creation
+	holder, err := client.NewSimplified("./simple_holder_storage")
 	if err != nil {
 		log.Fatal("Failed to create holder:", err)
 	}

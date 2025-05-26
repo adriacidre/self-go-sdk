@@ -30,7 +30,6 @@ import (
 	"time"
 
 	"github.com/joinself/self-go-sdk/client"
-	"github.com/joinself/self-go-sdk/examples/utils"
 )
 
 func main() {
@@ -91,35 +90,20 @@ func main() {
 func createClients() (*client.Client, *client.Client, *client.Client) {
 	fmt.Println("🔧 Setting up group chat clients...")
 
-	// Create admin client
-	admin, err := client.New(client.Config{
-		StorageKey:  utils.GenerateStorageKey("group_admin"),
-		StoragePath: "./group_admin_storage",
-		Environment: client.Sandbox,
-		LogLevel:    client.LogInfo,
-	})
+	// Create admin client using simplified creation
+	admin, err := client.NewSimplified("./group_admin_storage")
 	if err != nil {
 		log.Fatal("Failed to create admin client:", err)
 	}
 
-	// Create member1 client
-	member1, err := client.New(client.Config{
-		StorageKey:  utils.GenerateStorageKey("group_member1"),
-		StoragePath: "./group_member1_storage",
-		Environment: client.Sandbox,
-		LogLevel:    client.LogInfo,
-	})
+	// Create member1 client using simplified creation
+	member1, err := client.NewSimplified("./group_member1_storage")
 	if err != nil {
 		log.Fatal("Failed to create member1 client:", err)
 	}
 
-	// Create member2 client
-	member2, err := client.New(client.Config{
-		StorageKey:  utils.GenerateStorageKey("group_member2"),
-		StoragePath: "./group_member2_storage",
-		Environment: client.Sandbox,
-		LogLevel:    client.LogInfo,
-	})
+	// Create member2 client using simplified creation
+	member2, err := client.NewSimplified("./group_member2_storage")
 	if err != nil {
 		log.Fatal("Failed to create member2 client:", err)
 	}

@@ -26,7 +26,6 @@ import (
 	"time"
 
 	"github.com/joinself/self-go-sdk/client"
-	"github.com/joinself/self-go-sdk/examples/utils"
 )
 
 func main() {
@@ -76,24 +75,14 @@ func main() {
 func createClients() (*client.Client, *client.Client) {
 	fmt.Println("🔧 Setting up two clients...")
 
-	// Create first client
-	client1, err := client.New(client.Config{
-		StorageKey:  utils.GenerateStorageKey("connection_client1"),
-		StoragePath: "./connection_client1_storage",
-		Environment: client.Sandbox,
-		LogLevel:    client.LogInfo,
-	})
+	// Create first client using simplified creation
+	client1, err := client.NewSimplified("./connection_client1_storage")
 	if err != nil {
 		log.Fatal("Failed to create client1:", err)
 	}
 
-	// Create second client
-	client2, err := client.New(client.Config{
-		StorageKey:  utils.GenerateStorageKey("connection_client2"),
-		StoragePath: "./connection_client2_storage",
-		Environment: client.Sandbox,
-		LogLevel:    client.LogInfo,
-	})
+	// Create second client using simplified creation
+	client2, err := client.NewSimplified("./connection_client2_storage")
 	if err != nil {
 		log.Fatal("Failed to create client2:", err)
 	}

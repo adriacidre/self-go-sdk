@@ -16,6 +16,8 @@ The `client` package provides a high-level, easy-to-use interface for the Self S
 
 ### Basic Client Setup
 
+#### Simplified Setup (Recommended)
+
 ```go
 package main
 
@@ -25,13 +27,72 @@ import (
 )
 
 func main() {
-    // Create a new Self client
+    // Create a new Self client with sensible defaults
+    selfClient, err := client.NewSimplified("./my_app_storage")
+    if err != nil {
+        log.Fatal("Failed to create client:", err)
+    }
+    defer selfClient.Close()
+
+    // Your DID (Decentralized Identifier)
+    fmt.Printf("My DID: %s\n", selfClient.DID())
+}
+```
+
+The `NewSimplified()` function automatically:
+- Generates a secure 32-byte encryption key
+- Sets environment to Sandbox (safe for development)
+- Sets log level to LogWarn (balanced verbosity)
+- Creates the storage directory if it doesn't exist
+
+#### Advanced Setup (Full Control)
+
+```go
+package main
+
+import (
+    "log"
+    "github.com/joinself/self-go-sdk/client"
+)
+
+func main() {
+    // Create a new Self client with full configuration control
     selfClient, err := client.New(client.Config{
         StorageKey:  make([]byte, 32), // Use a secure key in production
         StoragePath: "./my_app_storage",
         Environment: client.Sandbox,   // or client.Production
         LogLevel:    client.LogInfo,
     })
+    if err != nil {
+        log.Fatal("Failed to create client:", err)
+    }
+    defer selfClient.Close()
+
+    // Your DID (Decentralized Identifier)
+    fmt.Printf("My DID: %s\n", selfClient.DID())
+}
+```
+
+#### Production Setup
+
+```go
+package main
+
+import (
+    "crypto/rand"
+    "log"
+    "github.com/joinself/self-go-sdk/client"
+)
+
+func main() {
+    // Generate or load a secure storage key for production
+    storageKey := make([]byte, 32)
+    if _, err := rand.Read(storageKey); err != nil {
+        log.Fatal("Failed to generate storage key:", err)
+    }
+    
+    // Create a production client
+    selfClient, err := client.NewSimplifiedProduction(storageKey, "./production_storage")
     if err != nil {
         log.Fatal("Failed to create client:", err)
     }
@@ -93,21 +154,13 @@ The Connection component allows you to establish direct peer-to-peer connections
 #### Connect Two Clients Directly
 
 ```go
-// Create two clients
-client1, err := client.New(client.Config{
-    StorageKey:  make([]byte, 32),
-    StoragePath: "./client1_storage",
-    Environment: client.Sandbox,
-})
+// Create two clients using simplified setup
+client1, err := client.NewSimplified("./client1_storage")
 if err != nil {
     log.Fatal(err)
 }
 
-client2, err := client.New(client.Config{
-    StorageKey:  make([]byte, 32),
-    StoragePath: "./client2_storage", 
-    Environment: client.Sandbox,
-})
+client2, err := client.NewSimplified("./client2_storage")
 if err != nil {
     log.Fatal(err)
 }

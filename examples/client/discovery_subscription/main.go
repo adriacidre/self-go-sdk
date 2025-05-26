@@ -28,7 +28,6 @@ import (
 	"time"
 
 	"github.com/joinself/self-go-sdk/client"
-	"github.com/joinself/self-go-sdk/examples/utils"
 )
 
 func main() {
@@ -59,12 +58,8 @@ func main() {
 func createDiscoveryClient() *client.Client {
 	fmt.Println("🔧 Setting up discovery client...")
 
-	discoveryClient, err := client.New(client.Config{
-		StorageKey:  utils.GenerateStorageKey("discovery_demo"),
-		StoragePath: "./discovery_demo_storage",
-		Environment: client.Sandbox,
-		LogLevel:    client.LogInfo,
-	})
+	// Use the simplified client creation - much easier!
+	discoveryClient, err := client.NewSimplified("./discovery_demo_storage")
 	if err != nil {
 		log.Fatal("Failed to create discovery client:", err)
 	}

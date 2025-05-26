@@ -28,7 +28,6 @@ import (
 	"time"
 
 	"github.com/joinself/self-go-sdk/client"
-	"github.com/joinself/self-go-sdk/examples/utils"
 )
 
 func main() {
@@ -74,12 +73,8 @@ func main() {
 func createClient() *client.Client {
 	fmt.Println("🔧 Setting up chat client...")
 
-	chatClient, err := client.New(client.Config{
-		StorageKey:  utils.GenerateStorageKey("simple_chat"),
-		StoragePath: "./simple_chat_storage",
-		Environment: client.Sandbox,
-		LogLevel:    client.LogInfo,
-	})
+	// Use the simplified client creation - much easier!
+	chatClient, err := client.NewSimplified("./simple_chat_storage")
 	if err != nil {
 		log.Fatal("Failed to create chat client:", err)
 	}

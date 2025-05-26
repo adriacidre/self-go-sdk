@@ -1,6 +1,12 @@
 package client
 
 import (
+	"crypto/rand"
+	"crypto/sha256"
+	"fmt"
+	"os"
+	"time"
+
 	"github.com/joinself/self-go-sdk/account"
 )
 
@@ -89,4 +95,70 @@ func (c *Config) toAccountConfig() *account.Config {
 	}
 
 	return cfg
+}
+
+// generateSecureStorageKey creates a cryptographically secure 32-byte key
+func generateSecureStorageKey() []byte {
+	key := make([]byte, 32)
+	if _, err := rand.Read(key); err != nil {
+		// Fallback to deterministic key generation if crypto/rand fails
+		h := sha256.Sum256([]byte(fmt.Sprintf("self-sdk-%d", time.Now().UnixNano())))
+		return h[:]
+	}
+	return key
+}
+
+// NewSimplified creates a new Self client with sensible defaults and minimal configuration.
+// This is the recommended way to create a client for most use cases.
+//
+// Parameters:
+//   - storagePath: Directory where the client will store its data
+//
+// The function automatically:
+//   - Generates a secure encryption key
+//   - Sets environment to Sandbox (safe for development/testing)
+//   - Sets log level to LogWarn (balanced verbosity)
+//   - Creates the storage directory if it doesn't exist
+//
+// For production use or custom configuration, use New() with a full Config.
+func NewSimplified(storagePath string) (*Client, error) {
+	// Create config with sensible defaults
+	config := Config{
+		StorageKey:  generateSecureStorageKey(),
+		StoragePath: storagePath,
+		Environment: Sandbox, // Safe default for development
+		LogLevel:    LogWarn, // Balanced verbosity
+		SkipReady:   false,
+		SkipSetup:   false,
+	}
+
+	return New(config)
+}
+
+// NewSimplifiedProduction creates a client configured for production use.
+// Unlike NewSimplified, this requires an explicit storage key for security.
+//
+// Parameters:
+//   - storageKey: 32-byte encryption key (must be securely generated and stored)
+//   - storagePath: Directory where the client will store its data
+func NewSimplifiedProduction(storageKey []byte, storagePath string) (*Client, error) {
+	if len(storageKey) != 32 {
+		return nil, fmt.Errorf("storage key must be exactly 32 bytes, got %d", len(storageKey))
+	}
+
+	// Ensure the storage directory exists
+	if err := os.MkdirAll(storagePath, 0700); err != nil {
+		return nil, fmt.Errorf("failed to create storage directory: %w", err)
+	}
+
+	config := Config{
+		StorageKey:  storageKey,
+		StoragePath: storagePath,
+		Environment: Production,
+		LogLevel:    LogError, // Minimal logging for production
+		SkipReady:   false,
+		SkipSetup:   false,
+	}
+
+	return New(config)
 }

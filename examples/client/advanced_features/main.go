@@ -34,7 +34,6 @@ import (
 	"log"
 
 	"github.com/joinself/self-go-sdk/client"
-	"github.com/joinself/self-go-sdk/examples/utils"
 )
 
 func main() {
@@ -106,12 +105,8 @@ func main() {
 func createClient() *client.Client {
 	fmt.Println("🔧 Setting up overview client...")
 
-	client, err := client.New(client.Config{
-		StorageKey:  utils.GenerateStorageKey("advanced_overview"),
-		StoragePath: "./advanced_overview_storage",
-		Environment: client.Sandbox,
-		LogLevel:    client.LogInfo,
-	})
+	// Use the simplified client creation - much easier!
+	client, err := client.NewSimplified("./advanced_overview_storage")
 	if err != nil {
 		log.Fatal("Failed to create client:", err)
 	}
