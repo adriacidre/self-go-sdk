@@ -72,8 +72,6 @@ func (c *Config) toAccountConfig() *account.Config {
 
 	// Set environment
 	switch c.Environment {
-	case Production:
-		cfg.Environment = account.TargetProduction
 	default:
 		cfg.Environment = account.TargetSandbox
 	}
