@@ -135,13 +135,13 @@ func NewSimplified(storagePath string) (*Client, error) {
 	return New(config)
 }
 
-// NewSimplifiedProduction creates a client configured for production use.
+// NewSimplifiedWithKey creates a client configured for production use.
 // Unlike NewSimplified, this requires an explicit storage key for security.
 //
 // Parameters:
 //   - storageKey: 32-byte encryption key (must be securely generated and stored)
 //   - storagePath: Directory where the client will store its data
-func NewSimplifiedProduction(storageKey []byte, storagePath string) (*Client, error) {
+func NewSimplifiedWithKey(storageKey []byte, storagePath string) (*Client, error) {
 	if len(storageKey) != 32 {
 		return nil, fmt.Errorf("storage key must be exactly 32 bytes, got %d", len(storageKey))
 	}

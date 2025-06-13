@@ -3,6 +3,7 @@ package client
 import (
 	"context"
 	"encoding/hex"
+	"strings"
 	"sync"
 	"time"
 
@@ -811,4 +812,116 @@ func (c *Credentials) CreatePresentation(presentationType []string, credentials 
 
 	// Issue the presentation
 	return c.client.account.PresentationIssue(unsignedPresentation)
+}
+
+// Send sends a credential to a peer by automatically creating a presentation and sending it
+func (c *Credentials) Send(peerDID string, cred *credential.VerifiableCredential) error {
+	return c.SendCredentials(peerDID, []*credential.VerifiableCredential{cred})
+}
+
+// SendCredentials sends multiple credentials to a peer by automatically creating a presentation and sending them
+func (c *Credentials) SendCredentials(peerDID string, creds []*credential.VerifiableCredential) error {
+	if c.client.isClosed() {
+		return ErrClientClosed
+	}
+
+	// Parse the peer DID to get the signing key
+	peerAddress := signing.FromAddress(peerDID)
+	if peerAddress == nil {
+		return ErrInvalidPeerDID
+	}
+
+	// Determine presentation type based on credential types
+	// Use the most common pattern for presentation types
+	presentationType := []string{"VerifiablePresentation"}
+
+	// If we have credentials, add a more specific type based on the first credential
+	if len(creds) > 0 {
+		credType := creds[0].CredentialType()
+		if len(credType) > 1 {
+			// Use the second element as the specific type (e.g., "EmailCredential")
+			// and create a presentation type like "EmailPresentation"
+			specificType := credType[1]
+			if strings.HasSuffix(specificType, "Credential") {
+				presentationType = append(presentationType, strings.Replace(specificType, "Credential", "Presentation", 1))
+			} else {
+				presentationType = append(presentationType, specificType+"Presentation")
+			}
+		}
+	}
+
+	// Create presentation with the credentials
+	presentation, err := c.CreatePresentation(presentationType, creds)
+	if err != nil {
+		return err
+	}
+
+	// Create message content with the presentation
+	msgContent, err := message.NewCredential().
+		VerifiablePresentation(presentation).
+		Finish()
+	if err != nil {
+		return err
+	}
+
+	// Send the message
+	return c.client.sendMessage(peerAddress, *msgContent)
+}
+
+// SendWithCustomPresentationType sends credentials with a custom presentation type
+func (c *Credentials) SendWithCustomPresentationType(peerDID string, presentationType []string, creds []*credential.VerifiableCredential) error {
+	if c.client.isClosed() {
+		return ErrClientClosed
+	}
+
+	// Parse the peer DID to get the signing key
+	peerAddress := signing.FromAddress(peerDID)
+	if peerAddress == nil {
+		return ErrInvalidPeerDID
+	}
+
+	// Create presentation with the credentials
+	presentation, err := c.CreatePresentation(presentationType, creds)
+	if err != nil {
+		return err
+	}
+
+	// Create message content with the presentation
+	msgContent, err := message.NewCredential().
+		VerifiablePresentation(presentation).
+		Finish()
+	if err != nil {
+		return err
+	}
+
+	// Send the message
+	return c.client.sendMessage(peerAddress, *msgContent)
+}
+
+// IssueAndSend is a helper struct to enable fluent API for credential building and sending
+type IssueAndSend struct {
+	credential *credential.VerifiableCredential
+	client     *Client
+}
+
+// Send sends the issued credential to a peer
+func (ias *IssueAndSend) Send(peerDID string) error {
+	return ias.client.Credentials().Send(peerDID, ias.credential)
+}
+
+// Get returns the issued credential for further use
+func (ias *IssueAndSend) Get() *credential.VerifiableCredential {
+	return ias.credential
+}
+
+// IssueAndSend issues the credential and returns a helper for sending
+func (b *CredentialBuilder) IssueAndSend(client *Client) (*IssueAndSend, error) {
+	cred, err := b.Issue(client)
+	if err != nil {
+		return nil, err
+	}
+	return &IssueAndSend{
+		credential: cred,
+		client:     client,
+	}, nil
 }

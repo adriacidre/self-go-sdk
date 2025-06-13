@@ -82,13 +82,12 @@ func New(config Config) (*Client, error) {
 
 // DID returns the client's decentralized identifier
 func (c *Client) DID() string {
-	c.mu.RLock()
-	defer c.mu.RUnlock()
-
-	if c.inboxAddress == nil {
-		return ""
-	}
 	return c.inboxAddress.String()
+}
+
+// Account returns the underlying Self account
+func (c *Client) Account() *account.Account {
+	return c.account
 }
 
 // Discovery returns the discovery component

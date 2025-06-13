@@ -92,7 +92,7 @@ func main() {
     }
     
     // Create a production client
-    selfClient, err := client.NewSimplifiedProduction(storageKey, "./production_storage")
+    selfClient, err := client.NewSimplifiedWithKey(storageKey, "./production_storage")
     if err != nil {
         log.Fatal("Failed to create client:", err)
     }

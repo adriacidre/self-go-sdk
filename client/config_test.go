@@ -141,7 +141,7 @@ func TestNewSimplified(t *testing.T) {
 	}
 }
 
-func TestNewSimplifiedProduction(t *testing.T) {
+func TestNewSimplifiedWithKey(t *testing.T) {
 	// Create a temporary directory for testing
 	tempDir := t.TempDir()
 
@@ -151,7 +151,7 @@ func TestNewSimplifiedProduction(t *testing.T) {
 		storageKey[i] = byte(i)
 	}
 
-	// Test the config creation logic that NewSimplifiedProduction would use
+	// Test the config creation logic that NewSimplifiedWithKey would use
 	config := Config{
 		StorageKey:  storageKey,
 		StoragePath: tempDir,
@@ -180,10 +180,10 @@ func TestNewSimplifiedProduction(t *testing.T) {
 		t.Errorf("Expected config to be valid, got error: %v", err)
 	}
 
-	// Test with invalid key length - this should be caught by NewSimplifiedProduction
+	// Test with invalid key length - this should be caught by NewSimplifiedWithKey
 	invalidKey := make([]byte, 16) // Wrong length
 
-	// Simulate the validation that NewSimplifiedProduction would do
+	// Simulate the validation that NewSimplifiedWithKey would do
 	if len(invalidKey) != 32 {
 		expectedError := "storage key must be exactly 32 bytes, got 16"
 		actualError := fmt.Sprintf("storage key must be exactly 32 bytes, got %d", len(invalidKey))
